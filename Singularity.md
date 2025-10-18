@@ -167,3 +167,145 @@ singularity exec --nv --cleanenv \
         --fp16 \
         --gradient-accumulation-steps 6
 ```
+## slurm (sbatch) scheduler script: script name `submit_train.sbatch`
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=nt_lora_optimized
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --gres=gpu:1
+#SBATCH --mem=320G
+#SBATCH --time=120:00:00
+#SBATCH --output=logs/train_optimized_%j.log
+#SBATCH --error=logs/train_optimized_%j.err.txt
+#SBATCH --exclusive
+
+set -e  # Exit on error
+set -x  # Print commands (for debugging)
+
+# ==============================================================================
+# Optimized Training Script - Maximum Resource Utilization
+# ==============================================================================
+
+cd /home/md.rasheduzzaman/data/molestus_Meta/NT_LM/env_cuda/nt_container
+
+module load singularity
+conda deactivate 2>/dev/null || true
+
+mkdir -p logs
+
+echo "=========================================="
+echo "Job Information"
+echo "=========================================="
+echo "Job ID: $SLURM_JOB_ID"
+echo "Job started: $(date)"
+echo "Node: $(hostname)"
+echo "Working directory: $PWD"
+
+# Resource allocation
+echo ""
+echo "=========================================="
+echo "Resource Allocation"
+echo "=========================================="
+echo "CPUs requested: 32"
+echo "Memory requested: 320 GB"
+echo "GPUs requested: 1"
+
+# GPU information
+echo ""
+echo "GPU Information:"
+nvidia-smi --query-gpu=name,memory.total,driver_version,compute_cap --format=csv,noheader
+
+echo "=========================================="
+
+# Set CPU affinity and threading
+export OMP_NUM_THREADS=32
+export MKL_NUM_THREADS=32
+export OPENBLAS_NUM_THREADS=32
+export NUMEXPR_NUM_THREADS=32
+
+# Optimal NCCL settings for single-GPU
+export NCCL_DEBUG=WARN
+export NCCL_P2P_DISABLE=1
+
+# PyTorch optimizations
+export CUDA_LAUNCH_BLOCKING=0
+export TORCH_CUDNN_V8_API_ENABLED=1
+
+# Auto-resume from latest checkpoint
+CHECKPOINT=""
+if [ -d "results/ntv2_50m_lora" ]; then
+    LATEST=$(ls -td results/ntv2_50m_lora/checkpoint-* 2>/dev/null | head -1)
+    if [ ! -z "$LATEST" ]; then
+        CHECKPOINT="--resume-from-checkpoint $LATEST"
+        echo ""
+        echo "Resuming from checkpoint: $LATEST"
+        echo ""
+    fi
+fi
+
+echo "=========================================="
+echo "Starting Training"
+echo "=========================================="
+
+# Run training with maximum resource utilization
+singularity exec --nv --cleanenv \
+    --bind /data/users/md.rasheduzzaman:/data/users/md.rasheduzzaman \
+    --bind /home/md.rasheduzzaman:/home/md.rasheduzzaman \
+    --env PATH=/home/md.rasheduzzaman/.local/bin:/usr/local/bin:/usr/bin:/bin \
+    --env PYTHONUSERBASE=/home/md.rasheduzzaman/.local \
+    --env HF_HOME=/data/users/md.rasheduzzaman/.cache/huggingface \
+    --env TMPDIR=/data/users/md.rasheduzzaman/tmp \
+    --env PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+    --env OMP_NUM_THREADS=32 \
+    --env MKL_NUM_THREADS=32 \
+    --env TORCH_CUDNN_V8_API_ENABLED=1 \
+    --env DATALOADER_NUM_WORKERS=16 \
+    nt_v2_finetune.sif python3 -u scripts/train_lora_ntv2_50m.py \
+        --train-csv processed_data/train_chunks.csv \
+        --valid-csv processed_data/valid_chunks.csv \
+        --output-dir results/ntv2_50m_lora \
+        --num-train-epochs 5 \
+        --per-device-train-batch-size 2 \
+        --per-device-eval-batch-size 8 \
+        --fp16 \
+        --gradient-accumulation-steps 6 \
+        --save-steps 10000 \
+        --eval-steps 2000 \
+        --dataloader-num-workers 16 \
+        --dataloader-prefetch-factor 4 \
+        $CHECKPOINT
+
+EXIT_CODE=$?
+
+echo ""
+echo "=========================================="
+echo "Job Summary"
+echo "=========================================="
+echo "Job finished: $(date)"
+echo "Exit code: $EXIT_CODE"
+
+# Final GPU stats
+echo ""
+echo "Final GPU State:"
+nvidia-smi
+
+# Checkpoint summary
+if [ -d "results/ntv2_50m_lora" ]; then
+    echo ""
+    echo "Saved Checkpoints:"
+    ls -lth results/ntv2_50m_lora/checkpoint-* 2>/dev/null | head -5
+fi
+
+echo "=========================================="
+
+exit $EXIT_CODE
+```
+Now we need to make it executable and submit it:
+```bash
+chmod +x submit_train.sbatch
+sbatch submit_train.sbatch
+```
