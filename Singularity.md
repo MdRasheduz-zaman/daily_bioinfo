@@ -55,6 +55,10 @@ mkdir -p /data/users/md.rasheduzzaman/tmp
 # Add local bin last
 export PATH=$HOME/.local/bin:$PATH
 ```
+Run thhis command to source it:
+```bash
+source ~/.bashrc
+```
 
 ## Problem Summary
 
