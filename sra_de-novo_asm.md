@@ -42,7 +42,6 @@ So, everything is fine. It is working.
 ## Use it now for download
 ```bash
 prefetch SRR35821421
-#prefetch SRR34300724
 ```
 The SRA run will be downloaded by prefetch. We need to dump it to fastq files now:
 ```bash
