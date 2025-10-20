@@ -177,3 +177,8 @@ bash run_denovo_asm.sh
 I am running it inside an interactive session so that I can check what is happening in every step.
 
 It is comparitively a small file and finishes real quick.
+
+To come out of the interactive session, run this:
+```bash
+exit
+```
