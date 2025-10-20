@@ -50,7 +50,7 @@ fasterq-dump --split-files SRR35821421
 It will create two fastq files (since it was a paired read file), namely, `SRR35821421_1.fastq`, `SRR35821421_2.fastq` at the current directory. We could specify a directory using `--outdir /path/to/output`. See help for this command to know more, like this: `fasterq-dump --help`.
 
 ## Clean-up
-The .sra file is not eeded after we get the fastq files. We can delete it (or the folder) safely.
+The .sra file is not needed after we get the fastq files. We can delete it (or the folder) safely.
 ```bash
 rm SRR35821421/SRR35821421.sra
 ```
@@ -103,7 +103,7 @@ echo "--------------------------------------------------------------------------
 eval "$(conda shell.bash hook)"
 
 # -----------------------------------------------------------------------------
-# STEP 1: Raw Quality Check (FastQC) - NEW STEP
+# STEP 1: Raw Quality Check (FastQC)
 # -----------------------------------------------------------------------------
 echo "--- Running FastQC (in ${ASSEMBLY_ENV_NAME} environment) ---"
 conda activate "$ASSEMBLY_ENV_NAME"
