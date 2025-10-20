@@ -116,3 +116,13 @@ N.B. The `--prune` flag tells conda/mamba to remove any packages that are curren
 ```bash
 conda env update --name ont_blast_maps --file environment.yaml --prune
 ```
+
+## Remove/delete an environment
+Deactivate the env. It's not possible to remove an activated environment.
+```bash
+conda deactivate
+```
+Now, remove it running:
+```bash
+conda env remove -n <environment_name> --all
+```
