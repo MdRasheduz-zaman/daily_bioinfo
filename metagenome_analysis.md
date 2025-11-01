@@ -578,9 +578,21 @@ snakemake \
     --stats snakemake_stats.txt \
     2>&1 | tee snakemake_log.txt
 ```
-But never really run it on the head node, HPC Cluster and the administrator(s) won't be happy. Take an interactive session or submit a sbatch jub (using SLURM scheduler). Some HPC Cluster could have PBS instead of SLURM. Know yours. Mine is SLURM.
+But never really run it on the head node, HPC Cluster and the administrator(s) won't be happy. Take an interactive session (using `srun` command) or submit a sbatch jub (using SLURM scheduler). 
 
-here goes the submission script, named `submit_pipeline.sh`:
+Run it wrapping like this:
+```bash
+sbatch -p fat -c 36 --mem=180G --time=25:00:00 --wrap "snakemake \
+    --cores 36 \
+    --rerun-incomplete \
+    --latency-wait 60 \
+    --verbose \
+    --stats snakemake_stats.txt \
+    2>&1 | tee novaseq_metagenome_log.txt
+```
+Some HPC Cluster could have PBS instead of SLURM. Know yours. Mine is SLURM.
+
+Instead of wrapping, we can write a proper submission script. Here goes the submission script, named `submit_pipeline.sh`:
 ```bash
 #!/bin/bash
 #SBATCH --job-name=rna_metagenomics
@@ -590,7 +602,7 @@ here goes the submission script, named `submit_pipeline.sh`:
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=36
-#SBATCH --mem=200G
+#SBATCH --mem=180G
 #SBATCH --time=12:00:00
 
 # conda activate metagenomics_env
@@ -612,7 +624,7 @@ snakemake \
     --latency-wait 60 \
     --verbose \
     --stats snakemake_stats.txt \
-    2>&1 | tee snakemake_log.txt
+    2>&1 | tee novaseq_metagenome_log.txt
 
 # Check exit status
 if [ $? -eq 0 ]; then
