@@ -11,7 +11,7 @@ dorado download --model dna_r10.4.1_e8.2_400bps_sup@v5.0.0
 ```
 So, we will have the model named `dna_r10.4.1_e8.2_400bps_sup@v5.0.0` inside our `molestus_Meta` directory. Now, we can use it.
 
-We have a folder `data/Cx_Commensal1/test_pod5_pass` (relative to the `molestus_Meta` directors) with all the `pod5` files for a sequencing run/sample. Let's do basecalling for it.
+We have a folder `data/Cx_Commensal1/test_pod5_pass` (relative to the `molestus_Meta` directory) with all the `pod5` files for a sequencing run/sample. Let's do basecalling for it.
 
 We will use snakemake for it. The file name is `Cx_bc1.smk`, inside the `home/md.rasheduzzaman/data/molestus_Meta/dorado_bc` folder. The content is below:
 ```bash
