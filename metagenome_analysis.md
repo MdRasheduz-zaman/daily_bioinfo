@@ -1,5 +1,6 @@
 # Metagenomic Classification from Illumina Novaseq (PE reads), 150bp
-We need a `config.yaml` file to store file paths, parameters, etc. This configuration file is the easiest on eto understand. So, we always should make a good config file. It helps! Snakemake file (rules) are somewhat cryptic.
+We need a `config.yaml` file to store file paths, parameters, etc. This configuration file is the easiest on eto understand. So, we always should make a good config file. It helps! Snakemake file (rules) are somewhat cryptic (at least long).
+By the way, [see this repo to learn snakemake](https://edwards.flinders.edu.au/snakemake-tutorial/) and [this](https://ngs-docs.github.io/2023-snakemake-book-draft/). Also the [official documentation](https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html)
 
 The `config.yaml` file content:
 ```bash

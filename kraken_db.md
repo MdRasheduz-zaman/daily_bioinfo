@@ -1,5 +1,10 @@
 ## kraken2 database making
-Let's make a file named `kkn_bd_making.sh` like this:
+We need to have the conda environment ready and activated to run the analysis. So, the environemnt will have all the tools (e.g. kraken2, braken, krona, etc.). We can denote the environment inside the snakemake file as well, using env directive. But for simplicity, let's activate the environment first and then run the script below. 
+Let's say the environment is `mosq_metagenome`. Let's activate it running `conda activate mosq_metagenome`.
+
+**N.B. Instead of snakemake file, we will use a bash script. We can include any script inside snakemake rule though. We will see it later.**
+
+Let's make the file named `kkn_bd_making.sh` like this:
 ```bash
 #!/bin/bash
 ## Kraken2 DB building for virus, archaea, bacteria, and Culex host
@@ -30,6 +35,7 @@ kraken2-build --add-to-library ncbi_dataset/data/GCF_016801865.2/*_genomic.fna -
 # This step creates the hash table from all combined library files. It is the most resource-intensive step.
 kraken2-build --build --db ../../kkn_db2 --threads 32
 
+bracken-build -d ../../kkn_db2  -t 32 -k 35 -l 400
 # sbatch command (commented out)
 # sbatch -p fat -c 32 --mem=280G --time=30:00:00 --wrap "bash kkn_bd_making.sh"
 ```
@@ -38,4 +44,4 @@ Now make it executable and submit it:
 chmod +x kkn_bd_making.sh
 sbatch -p fat -c 32 --mem=280G --time=30:00:00 --wrap "bash kkn_bd_making.sh"
 ```
-We will have our kraken2 database ready.
+We will have our kraken2 and braken databases ready.
