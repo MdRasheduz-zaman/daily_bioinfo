@@ -643,7 +643,7 @@ You see, I did not mention the snakefile. Snakemake got it by default.
 
 Usage of a sbatch/submission script is better. We can have error and log file for the whole run and it helps debugging.
 
-By the way, we just wrote the script. Need to submit now. Write `submit_pipeline.sh` to submit the job. You will see the job submission confirmation message with a job id. 
+By the way, we just wrote the script. Need to submit now. Write `sbatch submit_pipeline.sh` to submit the job. You will see the job submission confirmation message with a job id. 
 
 We can use the job id to check status. Run `squeue <job_id>`
 When the job is finished, we can check how much resources it used by running `sacct <job_id>`. So, we can decide later how much resource to ask and for how long.
